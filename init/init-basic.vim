@@ -16,9 +16,12 @@
 
 " 禁用 vi 兼容模式
 set nocompatible
+filetype on
 
 " 设置 Backspace 键模式
 set bs=eol,start,indent
+set scrolloff=10
+set matchpairs+=<:> " use % to jump between pairs
 
 " 自动缩进
 set autoindent
@@ -27,10 +30,10 @@ set autoindent
 set cindent
 
 " Windows 禁用 ALT 操作菜单（使得 ALT 可以用到 Vim里）
-set winaltkeys=no
+"set winaltkeys=no
 
-" 关闭自动换行
-set nowrap
+" 开启自动换行 
+set wrap
 
 " 打开功能键超时检测（终端下功能键为一串 ESC 开头的字符串）
 set ttimeout
@@ -45,6 +48,12 @@ set ruler
 "----------------------------------------------------------------------
 " 搜索设置
 "----------------------------------------------------------------------
+
+nnoremap / /\v
+vnoremap / /\v
+
+" clear search
+map <leader><space> :let @/=''<cr> 
 
 " 搜索时忽略大小写
 set ignorecase
@@ -128,7 +137,7 @@ set formatoptions+=m
 set formatoptions+=B
 
 " 文件换行符，默认使用 unix 换行符
-set ffs=unix,dos,mac
+set ffs=unix,mac
 
 
 "----------------------------------------------------------------------

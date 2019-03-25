@@ -15,8 +15,8 @@
 "----------------------------------------------------------------------
 if !exists('g:bundle_group')
 	let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes', 'textobj']
-	let g:bundle_group += ['tags', 'airline', 'nerdtree', 'ale', 'echodoc']
-	let g:bundle_group += ['leaderf']
+	let g:bundle_group += ['tags', 'airline', 'filetree', 'ale', 'echodoc']
+	let g:bundle_group += ['leaderf', 'complete']
 endif
 
 
@@ -34,7 +34,7 @@ endfunc
 "----------------------------------------------------------------------
 " 在 ~/.vim/bundles 下安装插件
 "----------------------------------------------------------------------
-call plug#begin(get(g:, 'bundle_home', '~/.vim/bundles'))
+call plug#begin(get(g:, 'bundle_home', '~/.vim/plugged'))
 
 
 "----------------------------------------------------------------------
@@ -44,46 +44,14 @@ call plug#begin(get(g:, 'bundle_home', '~/.vim/bundles'))
 " 全文快速移动，<leader><leader>f{char} 即可触发
 Plug 'easymotion/vim-easymotion'
 
-" 文件浏览器，代替 netrw
-Plug 'justinmk/vim-dirvish'
-
 " 表格对齐，使用命令 Tabularize
 Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
 
 " Diff 增强，支持 histogram / patience 等更科学的 diff 算法
 Plug 'chrisbra/vim-diff-enhanced'
 
-
-"----------------------------------------------------------------------
-" Dirvish 设置：自动排序并隐藏文件，同时定位到相关文件
-" 这个排序函数可以将目录排在前面，文件排在后面，并且按照字母顺序排序
-" 比默认的纯按照字母排序更友好点。
-"----------------------------------------------------------------------
-function! s:setup_dirvish()
-	if &buftype != 'nofile' && &filetype != 'dirvish'
-		return
-	endif
-	if has('nvim')
-		return
-	endif
-	" 取得光标所在行的文本（当前选中的文件名）
-	let text = getline('.')
-	if ! get(g:, 'dirvish_hide_visible', 0)
-		exec 'silent keeppatterns g@\v[\/]\.[^\/]+[\/]?$@d _'
-	endif
-	" 排序文件名
-	exec 'sort ,^.*[\/],'
-	let name = '^' . escape(text, '.*[]~\') . '[/*|@=|\\*]\=\%($\|\s\+\)'
-	" 定位到之前光标处的文件
-	call search(name, 'wc')
-	noremap <silent><buffer> ~ :Dirvish ~<cr>
-	noremap <buffer> % :e %
-endfunc
-
-augroup MyPluginSetup
-	autocmd!
-	autocmd FileType dirvish call s:setup_dirvish()
-augroup END
+" Commenter 
+Plug 'scrooloose/nerdcommenter'
 
 
 "----------------------------------------------------------------------
@@ -97,6 +65,12 @@ if index(g:bundle_group, 'basic') >= 0
 	" 一次性安装一大堆 colorscheme
 	Plug 'flazz/vim-colorschemes'
 
+    Plug 'morhetz/gruvbox'
+    let g:gruvbox_number_column = 'bg0'
+    let g:gruvbox_vert_split = 'gray'
+    let g:gruvbox_invert_selection = 0
+    colorscheme gruvbox
+
 	" 支持库，给其他插件用的函数库
 	Plug 'xolox/vim-misc'
 
@@ -105,10 +79,6 @@ if index(g:bundle_group, 'basic') >= 0
 
 	" 用于在侧边符号栏显示 git/svn 的 diff
 	Plug 'mhinz/vim-signify'
-
-	" 根据 quickfix 中匹配到的错误信息，高亮对应文件的错误行
-	" 使用 :RemoveErrorMarkers 命令或者 <space>ha 清除错误
-	Plug 'mh21/errormarker.vim'
 
 	" 使用 ALT+e 会在不同窗口/标签上显示 A/B/C 等编号，然后字母直接跳转
 	Plug 't9md/vim-choosewin'
@@ -126,21 +96,20 @@ if index(g:bundle_group, 'basic') >= 0
 	let g:startify_disable_at_vimenter = 1
 	let g:startify_session_dir = '~/.vim/session'
 
-	" 使用 <space>ha 清除 errormarker 标注的错误
-	noremap <silent><space>ha :RemoveErrorMarkers<cr>
-
 	" signify 调优
-	let g:signify_vcs_list = ['git', 'svn']
-	let g:signify_sign_add               = '+'
-	let g:signify_sign_delete            = '_'
-	let g:signify_sign_delete_first_line = '‾'
-	let g:signify_sign_change            = '~'
-	let g:signify_sign_changedelete      = g:signify_sign_change
+	let g:signify_vcs_list = ['git']
+" "	let g:signify_sign_add               = '+'
+" "	let g:signify_sign_delete            = '_'
+" "	let g:signify_sign_delete_first_line = '‾'
+" "	let g:signify_sign_change            = '~'
+" "	let g:signify_sign_changedelete      = g:signify_sign_change
 
 	" git 仓库使用 histogram 算法进行 diff
 	let g:signify_vcs_cmds = {
 			\ 'git': 'git diff --no-color --diff-algorithm=histogram --no-ext-diff -U0 -- %f',
 			\}
+
+
 endif
 
 
@@ -153,16 +122,24 @@ if index(g:bundle_group, 'enhanced') >= 0
 	Plug 'terryma/vim-expand-region'
 
 	" 快速文件搜索
-	Plug 'junegunn/fzf'
+	"Plug 'junegunn/fzf'
 
 	" 给不同语言提供字典补全，插入模式下 c-x c-k 触发
 	Plug 'asins/vim-dict'
 
 	" 使用 :FlyGrep 命令进行实时 grep
-	Plug 'wsdjeg/FlyGrep.vim'
+	"Plug 'wsdjeg/FlyGrep.vim'
 
 	" 使用 :CtrlSF 命令进行模仿 sublime 的 grep
 	Plug 'dyng/ctrlsf.vim'
+
+    let g:ctrlsf_default_root = 'project'
+    let g:ctrlsf_extra_root_markers = ['.root']
+    let g:ctrlsf_regex_pattern = 1
+    let g:ctrlsf_search_mode = 'async'
+    let g:ctrlsf_position = 'right'
+    nmap     <Leader>F <Plug>CtrlSFPrompt
+    vmap     <Leader>F <Plug>CtrlSFVwordExec
 
 	" 配对括号和引号自动补全
 	Plug 'Raimondi/delimitMate'
@@ -170,9 +147,19 @@ if index(g:bundle_group, 'enhanced') >= 0
 	" 提供 gist 接口
 	Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	
+    " 注释工具
+    Plug 'scrooloose/nerdcommenter'
+
 	" ALT_+/- 用于按分隔符扩大缩小 v 选区
 	map <m-=> <Plug>(expand_region_expand)
 	map <m--> <Plug>(expand_region_shrink)
+
+    " indentLine: dispaling thin lines at each indentation
+    Plug 'Yggdroot/indentLine'
+    
+    let g:indentLine_color_term = 239
+    let g:indentLine_char = '⎸'
+    
 endif
 
 
@@ -183,44 +170,64 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'tags') >= 0
 
-	" 提供 ctags/gtags 后台数据库自动更新功能
-	Plug 'ludovicchabant/vim-gutentags'
+    " gtags: GNU GLOBAL source code tage system with VIM
+    Plug 'vim-scripts/gtags.vim'
 
-	" 提供 GscopeFind 命令并自动处理好 gtags 数据库切换
-	" 支持光标移动到符号名上：<leader>cg 查看定义，<leader>cs 查看引用
-	Plug 'skywind3000/gutentags_plus'
+    " Gtags setting:
+    let $GTAGSLABEL = 'native'
+    let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
+    set cscopetag
+    set cscopeprg=gtags-cscope
+    " shortcuts
+    noremap <leader>g :GtagsCursor<CR>
+    noremap <C-n> :cn<CR>
+    noremap <C-p> :cp<CR>
 
-	" 设定项目目录标志：除了 .git/.svn 外，还有 .root 文件
-	let g:gutentags_project_root = ['.root']
-	let g:gutentags_ctags_tagfile = '.tags'
 
-	" 默认生成的数据文件集中到 ~/.cache/tags 避免污染项目目录，好清理
-	let g:gutentags_cache_dir = expand('~/.cache/tags')
+    Plug 'majutsushi/tagbar'
+    nnoremap <leader><C-T> :Tagbar<CR>
+    let g:tagbar_sort = 0
+    let g:tagbar_indent = 1
+    let g:tagbar_iconchars = ['▸', '▾']
 
-	" 默认禁用自动生成
-	let g:gutentags_modules = [] 
+    " 提供 ctags/gtags 后台数据库自动更新功能
+    Plug 'ludovicchabant/vim-gutentags'
 
-	" 如果有 ctags 可执行就允许动态生成 ctags 文件
-	if executable('ctags')
-		let g:gutentags_modules += ['ctags']
-	endif
+    " 提供 GscopeFind 命令并自动处理好 gtags 数据库切换
+    " 支持光标移动到符号名上：<leader>cg 查看定义，<leader>cs 查看引用
+    Plug 'skywind3000/gutentags_plus'
 
-	" 如果有 gtags 可执行就允许动态生成 gtags 数据库
-	if executable('gtags') && executable('gtags-cscope')
-		let g:gutentags_modules += ['gtags_cscope']
-	endif
+    " 设定项目目录标志：除了 .git/.svn 外，还有 .root 文件
+    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+    let g:gutentags_ctags_tagfile = '.tags'
 
-	" 设置 ctags 的参数
-	let g:gutentags_ctags_extra_args = []
-	let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
-	let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
-	let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+    " 默认生成的数据文件集中到 ~/.cache/tags 避免污染项目目录，好清理
+    let g:gutentags_cache_dir = expand('~/.cache/tags')
 
-	" 使用 universal-ctags 的话需要下面这行，请反注释
-	" let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+    " 默认禁用自动生成
+    let g:gutentags_modules = [] 
 
-	" 禁止 gutentags 自动链接 gtags 数据库
-	let g:gutentags_auto_add_gtags_cscope = 0
+    " 如果有 ctags 可执行就允许动态生成 ctags 文件
+    if executable('ctags')
+        let g:gutentags_modules += ['ctags']
+    endif
+
+    " 如果有 gtags 可执行就允许动态生成 gtags 数据库
+    if executable('gtags') && executable('gtags-cscope')
+        let g:gutentags_modules += ['gtags_cscope']
+    endif
+
+    " 设置 ctags 的参数
+    let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+    let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+    let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+
+    " 使用 universal-ctags 的话需要下面这行，请反注释
+    let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+
+    " 禁止 gutentags 自动链接 gtags 数据库
+    let g:gutentags_auto_add_gtags_cscope = 0
+
 endif
 
 
@@ -229,6 +236,7 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'textobj')
 	
+    " TO BE STUDIED
 	" 基础插件：提供让用户方便的自定义文本对象的接口
 	Plug 'kana/vim-textobj-user'
 
@@ -257,12 +265,6 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'filetypes') >= 0
 
-	" powershell 脚本文件的语法高亮
-	Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
-
-	" lua 语法高亮增强
-	Plug 'tbastos/vim-lua', { 'for': 'lua' }
-
 	" C++ 语法高亮增强，支持 11/14/17 标准
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 
@@ -276,7 +278,11 @@ if index(g:bundle_group, 'filetypes') >= 0
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
 	" vim org-mode 
-	Plug 'jceb/vim-orgmode', { 'for': 'org' }
+	"Plug 'jceb/vim-orgmode', { 'for': 'org' }
+    
+    " Julia 
+    Plug 'JuliaEditorSupport/julia-vim'
+
 endif
 
 
@@ -284,8 +290,13 @@ endif
 " airline
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'airline') >= 0
+
 	Plug 'vim-airline/vim-airline'
 	Plug 'vim-airline/vim-airline-themes'
+    
+    " buffer tabs
+    Plug 'ap/vim-buftabline'
+
 	let g:airline_left_sep = ''
 	let g:airline_left_alt_sep = ''
 	let g:airline_right_sep = ''
@@ -293,28 +304,93 @@ if index(g:bundle_group, 'airline') >= 0
 	let g:airline_powerline_fonts = 0
 	let g:airline_exclude_preview = 1
 	let g:airline_section_b = '%n'
-	let g:airline_theme='deus'
+	let g:airline_theme='gruvbox'
+
+	let g:airline#extensions#ale#enabled = 1
 	let g:airline#extensions#branch#enabled = 0
-	let g:airline#extensions#syntastic#enabled = 0
-	let g:airline#extensions#fugitiveline#enabled = 0
-	let g:airline#extensions#csv#enabled = 0
-	let g:airline#extensions#vimagit#enabled = 0
+	let g:airline#extensions#fugitiveline#enabled = 1
+
+    let g:airline#extensions#gutentags#enabled = 1
+    let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
+    let g:airline#extensions#bufferline#enabled = 1
+
 endif
 
 
 "----------------------------------------------------------------------
-" NERDTree
+" filetree
 "----------------------------------------------------------------------
-if index(g:bundle_group, 'nerdtree') >= 0
-	Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind'] }
-	Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-	let g:NERDTreeMinimalUI = 1
-	let g:NERDTreeDirArrows = 1
-	let g:NERDTreeHijackNetrw = 0
-	noremap <space>nn :NERDTree<cr>
-	noremap <space>no :NERDTreeFocus<cr>
-	noremap <space>nm :NERDTreeMirror<cr>
-	noremap <space>nt :NERDTreeToggle<cr>
+if index(g:bundle_group, 'filetree') >= 0
+
+    Plug 'Shougo/defx.nvim'
+
+    nnoremap <silent><leader><C-f> :Defx -split=vertical -winwidth=30 
+                \ -direction=topleft -show_ignored_files=0 -toggle=1 
+                \ -buffer_name='' -columns=git:mark:filename:type 
+                \ -columns=icons:filename:type <cr>
+                " \ -ignored-files= ['.pyc','~$','.swp', '.DS_Store', '.out']
+
+    autocmd FileType defx call s:defx_my_settings()
+    function! s:defx_my_settings() abort
+        " Define mappings
+        nnoremap <silent><buffer><expr> <CR> defx#do_action('open')
+        nnoremap <silent><buffer><expr> c defx#do_action('copy')
+        nnoremap <silent><buffer><expr> m defx#do_action('move')
+        nnoremap <silent><buffer><expr> p defx#do_action('paste')
+        nnoremap <silent><buffer><expr> l defx#do_action('open')
+        nnoremap <silent><buffer><expr> E defx#do_action('open', 'vsplit')
+        nnoremap <silent><buffer><expr> P defx#do_action('open', 'pedit')
+        nnoremap <silent><buffer><expr> o defx#do_action('open_or_close_tree')
+        nnoremap <silent><buffer><expr> K defx#do_action('new_directory')
+        nnoremap <silent><buffer><expr> N defx#do_action('new_file')
+        nnoremap <silent><buffer><expr> M defx#do_action('new_multiple_files')
+        nnoremap <silent><buffer><expr> C defx#do_action('toggle_columns',
+                    \   'mark:filename:type:size:time')
+        nnoremap <silent><buffer><expr> S defx#do_action('toggle_sort', 'time')
+        nnoremap <silent><buffer><expr> d defx#do_action('remove')
+        nnoremap <silent><buffer><expr> r defx#do_action('rename')
+        nnoremap <silent><buffer><expr> !  defx#do_action('execute_command')
+        nnoremap <silent><buffer><expr> x defx#do_action('execute_system')
+        nnoremap <silent><buffer><expr> yy defx#do_action('yank_path')
+        nnoremap <silent><buffer><expr> .  defx#do_action('toggle_ignored_files')
+        nnoremap <silent><buffer><expr> ; defx#do_action('repeat')
+        nnoremap <silent><buffer><expr> h defx#do_action('cd', ['..'])
+        nnoremap <silent><buffer><expr> ~ defx#do_action('cd')
+        nnoremap <silent><buffer><expr> q defx#do_action('quit')
+        nnoremap <silent><buffer><expr> <Space> defx#do_action('toggle_select') . 'j'
+        nnoremap <silent><buffer><expr> * defx#do_action('toggle_select_all')
+        nnoremap <silent><buffer><expr> j line('.') == line('$') ? 'gg' : 'j'
+        nnoremap <silent><buffer><expr> k line('.') == 1 ? 'G' : 'k'
+        nnoremap <silent><buffer><expr> <C-l> defx#do_action('redraw')
+        nnoremap <silent><buffer><expr> <C-g> defx#do_action('print')
+        nnoremap <silent><buffer><expr> cd defx#do_action('change_vim_cwd')
+    endfunction
+
+    Plug 'kristijanhusak/defx-icons'
+
+    let g:defx_icons_enable_syntax_highlight = 1
+    let g:defx_icons_column_length = 0
+    let g:defx_icons_directory_icon = ''
+    let g:defx_icons_mark_icon = '*'
+    let g:defx_icons_parent_icon = ''
+    let g:defx_icons_default_icon = ''
+    let g:defx_icons_directory_symlink_icon = ''
+    " Options below are applicable only when using "tree" feature
+    let g:defx_icons_root_opened_tree_icon = ''
+    let g:defx_icons_nested_opened_tree_icon = ''
+    let g:defx_icons_nested_closed_tree_icon = ''
+
+    Plug 'kristijanhusak/defx-git'
+    let g:defx_git#indicators = {
+                \ 'Modified'  : '✹',
+                \ 'Staged'    : '✚',
+                \ 'Untracked' : '✭',
+                \ 'Renamed'   : '➜',
+                \ 'Unmerged'  : '═',
+                \ 'Ignored'   : '☒',
+                \ 'Deleted'   : '✖',
+                \ 'Unknown'   : '?'
+                \ }
 endif
 
 
@@ -344,8 +420,16 @@ if index(g:bundle_group, 'ale') >= 0
 	" 设定延迟和提示信息
 	let g:ale_completion_delay = 500
 	let g:ale_echo_delay = 20
+    let g:ale_echo_msg_error_str = 'E'
+    let g:ale_echo_msg_warning_str = 'W'
+    let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+	"let g:ale_echo_msg_format = '[%linter%] %code: %%s'
 	let g:ale_lint_delay = 500
-	let g:ale_echo_msg_format = '[%linter%] %code: %%s'
+    let g:ale_lint_on_text_changed = 'normal'
+    let g:ale_lint_on_insert_leave = 0
+    let g:ale_sign_error = '✗'
+    let g:ale_sign_warning = '⚡'
+    let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
 
 	" 设定检测的时机：normal 模式文字改变，或者离开 insert模式
 	" 禁用默认 INSERT 模式下改变文字也触发的设置，太频繁外，还会让补全窗闪烁
@@ -357,20 +441,32 @@ if index(g:bundle_group, 'ale') >= 0
 		let g:ale_command_wrapper = 'nice -n5'
 	endif
 
-	" 允许 airline 集成
-	let g:airline#extensions#ale#enabled = 1
+    " config for C/C++
+    let g:ale_c_build_dir_names = ['build', 'release', 'debug']
+    let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+    let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+    let g:ale_c_cppcheck_options = ''
+    let g:ale_cpp_cppcheck_options = ''
+    let g:ale_cpp_clangtidy_options = '-Wall -std=c++11 -x c++'
 
-	" 编辑不同文件类型需要的语法检查器
-	let g:ale_linters = {
-				\ 'c': ['gcc', 'cppcheck'], 
-				\ 'cpp': ['gcc', 'cppcheck'], 
-				\ 'python': ['flake8', 'pylint'], 
-				\ 'lua': ['luac'], 
-				\ 'go': ['go build', 'gofmt'],
-				\ 'java': ['javac'],
-				\ 'javascript': ['eslint'], 
-				\ }
+    " 编辑不同文件类型需要的语法检查器
+    let g:ale_linters = {
+                \ 'cpp': ['clangd', 'clang++', 'cppcheck' , 'clangtidy',
+                \ 'cquery'],
+                \ 'c': ['gcc', 'clang'],
+                \ 'rust': ['rustc', 'cargo', 'rls'],
+                \ 'python': ['flake8', 'pylint'], 
+                \ 'lua': ['luac'], 
+                \ 'go': ['go build', 'gofmt'],
+                \ 'java': ['javac'],
+                \ 'javascript': ['eslint'], 
+                \ }
 
+    "let g:ale_fixers = {
+                "\ 'cpp': ['clang-format'],
+                "\ }
+
+    let g:ale_java_javac_options = '-encoding UTF-8  -J-Duser.language=en' 
 
 	" 获取 pylint, flake8 的配置文件，在 vim-init/tools/conf 下面
 	function s:lintcfg(name)
@@ -399,6 +495,8 @@ if index(g:bundle_group, 'ale') >= 0
 		let g:ale_linters.c += ['clang']
 		let g:ale_linters.cpp += ['clang']
 	endif
+
+
 endif
 
 
@@ -420,32 +518,35 @@ if index(g:bundle_group, 'leaderf') >= 0
 	if has('python') || has('python3')
 		Plug 'Yggdroot/LeaderF'
 
-		" CTRL+p 打开文件模糊匹配
-		let g:Lf_ShortcutF = '<c-p>'
+		" 打开文件模糊匹配
+        let g:lf_shortcutf = '<leader>f<leader>'
 
-		" ALT+n 打开 buffer 模糊匹配
-		let g:Lf_ShortcutB = '<m-n>'
+		" 打开最近使用的文件 MRU，进行模糊匹配
+        noremap <leader>fm  :LeaderfMru<cr>
 
-		" CTRL+n 打开最近使用的文件 MRU，进行模糊匹配
-		noremap <c-n> :LeaderfMru<cr>
+		" 打开函数列表，按 i 进入模糊匹配，ESC 退出
+		noremap <leader>fp :LeaderfFunction!<cr>
 
-		" ALT+p 打开函数列表，按 i 进入模糊匹配，ESC 退出
-		noremap <m-p> :LeaderfFunction!<cr>
+		" 打开 tag 列表，i 进入模糊匹配，ESC退出
+		noremap <leader>ft :LeaderfBufTag!<cr>
 
-		" ALT+SHIFT+p 打开 tag 列表，i 进入模糊匹配，ESC退出
-		noremap <m-P> :LeaderfBufTag!<cr>
-
-		" ALT+n 打开 buffer 列表进行模糊匹配
-		noremap <m-n> :LeaderfBuffer<cr>
+		" 打开 buffer 列表进行模糊匹配
+		noremap <leader>fb :LeaderfBuffer<cr>
 
 		" 全局 tags 模糊匹配
-		noremap <m-m> :LeaderfTag<cr>
+		noremap <leader>fT :LeaderfTag<cr>
+
+        " 搜索模式
+        let g:lf_defaultmode = 'NameOnly'
+        let g:lf_defaultexternaltool = "ag"
+        let g:lf_rememberlastsearch = 1
 
 		" 最大历史文件保存 2048 个
 		let g:Lf_MruMaxFiles = 2048
 
 		" ui 定制
 		let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
+        let g:lf_stlcolorscheme = 'airline'
 
 		" 如何识别项目目录，从当前文件目录向父目录递归知道碰到下面的文件/目录
 		let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
@@ -456,8 +557,8 @@ if index(g:bundle_group, 'leaderf') >= 0
 		" 显示绝对路径
 		let g:Lf_ShowRelativePath = 0
 
-		" 隐藏帮助
-		let g:Lf_HideHelp = 1
+		" 显示帮助
+		let g:Lf_HideHelp = 0
 
 		" 模糊匹配忽略扩展名
 		let g:Lf_WildIgnore = {
@@ -467,7 +568,6 @@ if index(g:bundle_group, 'leaderf') >= 0
 
 		" MRU 文件忽略扩展名
 		let g:Lf_MruFileExclude = ['*.so', '*.exe', '*.py[co]', '*.sw?', '~$*', '*.bak', '*.tmp', '*.dll']
-		let g:Lf_StlColorscheme = 'powerline'
 
 		" 禁用 function/buftag 的预览功能，可以手动用 p 预览
 		let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
@@ -481,43 +581,31 @@ if index(g:bundle_group, 'leaderf') >= 0
 				\ "BufTag": [["<ESC>", ':exec g:Lf_py "bufTagExplManager.quit()"<cr>']],
 				\ "Function": [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<cr>']],
 				\ }
-
-	else
-		" 不支持 python ，使用 CtrlP 代替
-		Plug 'ctrlpvim/ctrlp.vim'
-
-		" 显示函数列表的扩展插件
-		Plug 'tacahiroy/ctrlp-funky'
-
-		" 忽略默认键位
-		let g:ctrlp_map = ''
-
-		" 模糊匹配忽略
-		let g:ctrlp_custom_ignore = {
-		  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-		  \ 'file': '\v\.(exe|so|dll|mp3|wav|sdf|suo|mht)$',
-		  \ 'link': 'some_bad_symbolic_links',
-		  \ }
-
-		" 项目标志
-		let g:ctrlp_root_markers = ['.project', '.root', '.svn', '.git']
-		let g:ctrlp_working_path = 0
-
-		" CTRL+p 打开文件模糊匹配
-		noremap <c-p> :CtrlP<cr>
-
-		" CTRL+n 打开最近访问过的文件的匹配
-		noremap <c-n> :CtrlPMRUFiles<cr>
-
-		" ALT+p 显示当前文件的函数列表
-		noremap <m-p> :CtrlPFunky<cr>
-
-		" ALT+n 匹配 buffer
-		noremap <m-n> :CtrlPBuffer<cr>
-	endif
 endif
 
 
+"----------------------------------------------------------------------
+" 补全
+"----------------------------------------------------------------------
+if index(g:bundle_group, 'complete') >= 0
+
+    Plug 'Shougo/deoplete.nvim'
+    Plug 'roxma/nvim-yarp'
+    Plug 'roxma/vim-hug-neovim-rpc'
+
+    " A very good source of deoplete
+    Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+
+    let g:deoplete#enable_at_startup = 1
+    let g:deoplete#enable_smart_case = 1
+    let g:deoplete#auto_completion_start_length = 3
+    let g:deoplete#auto_complete_delay=10
+    let g:deoplete#ignore_sources = {}
+    " let g:deoplete#ignore_sources._ = ['javacomplete2']
+    set completeopt=menu,preview,noinsert
+    autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+
+endif
 "----------------------------------------------------------------------
 " 结束插件安装
 "----------------------------------------------------------------------
@@ -530,82 +618,82 @@ call plug#end()
 "----------------------------------------------------------------------
 
 " 禁用预览功能：扰乱视听
-let g:ycm_add_preview_to_completeopt = 0
+" let g:ycm_add_preview_to_completeopt = 0
+" 
+" " 禁用诊断功能：我们用前面更好用的 ALE 代替
+" let g:ycm_show_diagnostics_ui = 0
+" let g:ycm_server_log_level = 'info'
+" let g:ycm_min_num_identifier_candidate_chars = 2
+" let g:ycm_collect_identifiers_from_comments_and_strings = 1
+" let g:ycm_complete_in_strings=1
+" let g:ycm_key_invoke_completion = '<c-z>'
+" set completeopt=menu,menuone,noselect
+" 
+" " noremap <c-z> <NOP>
+" 
+" " 两个字符自动触发语义补全
+" let g:ycm_semantic_triggers =  {
+" 			\ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+" 			\ 'cs,lua,javascript': ['re!\w{2}'],
+" 			\ }
+" 
+" 
+" "----------------------------------------------------------------------
+" " Ycm 白名单（非名单内文件不启用 YCM），避免打开个 1MB 的 txt 分析半天
+" "----------------------------------------------------------------------
+ let g:ycm_filetype_whitelist = { 
+ 			\ "c":1,
+ 			\ "cpp":1, 
+ 			\ "objc":1,
+ 			\ "objcpp":1,
+ 			\ "python":1,
+ 			\ "java":1,
+ 			\ "javascript":1,
+ 			\ "coffee":1,
+ 			\ "vim":1, 
+ 			\ "go":1,
+ 			\ "cs":1,
+ 			\ "lua":1,
+ 			\ "perl":1,
+ 			\ "perl6":1,
+ 			\ "php":1,
+ 			\ "ruby":1,
+ 			\ "rust":1,
+ 			\ "erlang":1,
+ 			\ "asm":1,
+ 			\ "nasm":1,
+ 			\ "masm":1,
+ 			\ "tasm":1,
+ 			\ "asm68k":1,
+ 			\ "asmh8300":1,
+ 			\ "asciidoc":1,
+ 			\ "basic":1,
+ 			\ "vb":1,
+ 			\ "make":1,
+ 			\ "cmake":1,
+ 			\ "html":1,
+ 			\ "css":1,
+ 			\ "less":1,
+ 			\ "json":1,
+ 			\ "cson":1,
+ 			\ "typedscript":1,
+ 			\ "haskell":1,
+ 			\ "lhaskell":1,
+ 			\ "lisp":1,
+ 			\ "scheme":1,
+ 			\ "sdl":1,
+ 			\ "sh":1,
+ 			\ "zsh":1,
+ 			\ "bash":1,
+ 			\ "man":1,
+ 			\ "markdown":1,
+ 			\ "matlab":1,
+ 			\ "maxima":1,
+ 			\ "dosini":1,
+ 			\ "conf":1,
+ 			\ "config":1,
+ 			\ "zimbu":1,
+ 			\ "ps1":1,
+ 			\ }
 
-" 禁用诊断功能：我们用前面更好用的 ALE 代替
-let g:ycm_show_diagnostics_ui = 0
-let g:ycm_server_log_level = 'info'
-let g:ycm_min_num_identifier_candidate_chars = 2
-let g:ycm_collect_identifiers_from_comments_and_strings = 1
-let g:ycm_complete_in_strings=1
-let g:ycm_key_invoke_completion = '<c-z>'
-set completeopt=menu,menuone,noselect
-
-" noremap <c-z> <NOP>
-
-" 两个字符自动触发语义补全
-let g:ycm_semantic_triggers =  {
-			\ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-			\ 'cs,lua,javascript': ['re!\w{2}'],
-			\ }
-
-
-"----------------------------------------------------------------------
-" Ycm 白名单（非名单内文件不启用 YCM），避免打开个 1MB 的 txt 分析半天
-"----------------------------------------------------------------------
-let g:ycm_filetype_whitelist = { 
-			\ "c":1,
-			\ "cpp":1, 
-			\ "objc":1,
-			\ "objcpp":1,
-			\ "python":1,
-			\ "java":1,
-			\ "javascript":1,
-			\ "coffee":1,
-			\ "vim":1, 
-			\ "go":1,
-			\ "cs":1,
-			\ "lua":1,
-			\ "perl":1,
-			\ "perl6":1,
-			\ "php":1,
-			\ "ruby":1,
-			\ "rust":1,
-			\ "erlang":1,
-			\ "asm":1,
-			\ "nasm":1,
-			\ "masm":1,
-			\ "tasm":1,
-			\ "asm68k":1,
-			\ "asmh8300":1,
-			\ "asciidoc":1,
-			\ "basic":1,
-			\ "vb":1,
-			\ "make":1,
-			\ "cmake":1,
-			\ "html":1,
-			\ "css":1,
-			\ "less":1,
-			\ "json":1,
-			\ "cson":1,
-			\ "typedscript":1,
-			\ "haskell":1,
-			\ "lhaskell":1,
-			\ "lisp":1,
-			\ "scheme":1,
-			\ "sdl":1,
-			\ "sh":1,
-			\ "zsh":1,
-			\ "bash":1,
-			\ "man":1,
-			\ "markdown":1,
-			\ "matlab":1,
-			\ "maxima":1,
-			\ "dosini":1,
-			\ "conf":1,
-			\ "config":1,
-			\ "zimbu":1,
-			\ "ps1":1,
-			\ }
-
-
+endif 

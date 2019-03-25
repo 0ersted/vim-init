@@ -159,15 +159,6 @@ augroup InitFileTypesGroup
 	" markdown 允许自动换行
 	au FileType markdown setlocal wrap
 
-	" lisp 进行微调
-	au FileType lisp setlocal ts=8 sts=2 sw=2 et
-
-	" scala 微调
-	au FileType scala setlocal sts=4 sw=4 noet
-
-	" haskell 进行微调
-	au FileType haskell setlocal et
-
 	" quickfix 隐藏行号
 	au FileType qf setlocal nonumber
 

@@ -20,20 +20,22 @@ set laststatus=2
 set number
 
 " 总是显示侧边栏（用于显示 mark/gitdiff/诊断信息）
-set signcolumn=yes
+set signcolumn=auto
 
 " 总是显示标签栏
 set showtabline=2
 
-" 设置显示制表符等隐藏字符
-set list
+" 不显示制表符等隐藏字符
+"set list
+set listchars=tab:▸\ ,eol:¬
+map <leader>l :set list!<CR> " Toggle tabs and EOL
 
 " 右下角显示命令
 set showcmd
 
 " 插入模式在状态栏下面显示 -- INSERT --，
 " 先注释掉，默认已经为真了，如果这里再设置一遍会影响 echodoc 插件
-" set showmode
+set showmode
 
 " 水平切割窗口时，默认在右边显示新窗口
 set splitright
@@ -43,14 +45,15 @@ set splitright
 " 颜色主题：色彩文件位于 colors 目录中
 "----------------------------------------------------------------------
 
-" 设置黑色背景
-set background=dark
+" 设置亮色背景
+set background=light
 
 " 允许 256 色
 set t_Co=256
+set termguicolors
 
 " 设置颜色主题，会在所有 runtimepaths 的 colors 目录寻找同名配置
-color desert256
+"color desert256
 
 
 "----------------------------------------------------------------------
@@ -92,25 +95,12 @@ endif
 hi! SignColumn guibg=NONE ctermbg=NONE
 
 " 修改行号为浅灰色，默认主题的黄色行号很难看，换主题可以仿照修改
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE 
-	\ gui=NONE guifg=DarkGrey guibg=NONE
+" highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE 
+"             \ gui=NONE guifg=DarkGrey guibg=NONE
 
 " 修正补全目录的色彩：默认太难看
-hi! Pmenu guibg=gray guifg=black ctermbg=gray ctermfg=black
-hi! PmenuSel guibg=gray guifg=brown ctermbg=brown ctermfg=gray
-
-
-"----------------------------------------------------------------------
-" 终端设置，隐藏行号和侧边栏
-"----------------------------------------------------------------------
-if has('terminal') && exists(':terminal') == 2
-	if exists('##TerminalOpen')
-		augroup VimUnixTerminalGroup
-			au! 
-			au TerminalOpen * setlocal nonumber signcolumn=no
-		augroup END
-	endif
-endif
+" hi! Pmenu guibg=gray guifg=black ctermbg=gray ctermfg=black
+" hi! PmenuSel guibg=gray guifg=brown ctermbg=brown ctermfg=gray
 
 
 "----------------------------------------------------------------------
@@ -128,164 +118,8 @@ augroup END
 " 2: 1 - filename.txt
 " 3: [1] filename.txt
 "----------------------------------------------------------------------
-if has('gui_running')
-	let g:config_vim_tab_style = 3
-endif
-
-
-"----------------------------------------------------------------------
-" 终端下的 tabline
-"----------------------------------------------------------------------
-function! Vim_NeatTabLine()
-	let s = ''
-	for i in range(tabpagenr('$'))
-		" select the highlighting
-		if i + 1 == tabpagenr()
-			let s .= '%#TabLineSel#'
-		else
-			let s .= '%#TabLine#'
-		endif
-
-		" set the tab page number (for mouse clicks)
-		let s .= '%' . (i + 1) . 'T'
-
-		" the label is made by MyTabLabel()
-		let s .= ' %{Vim_NeatTabLabel(' . (i + 1) . ')} '
-	endfor
-
-	" after the last tab fill with TabLineFill and reset tab page nr
-	let s .= '%#TabLineFill#%T'
-
-	" right-align the label to close the current tab page
-	if tabpagenr('$') > 1
-		let s .= '%=%#TabLine#%999XX'
-	endif
-
-	return s
-endfunc
-
-
-"----------------------------------------------------------------------
-" 需要显示到标签上的文件名
-"----------------------------------------------------------------------
-function! Vim_NeatBuffer(bufnr, fullname)
-	let l:name = bufname(a:bufnr)
-	if getbufvar(a:bufnr, '&modifiable')
-		if l:name == ''
-			return '[No Name]'
-		else
-			if a:fullname 
-				return fnamemodify(l:name, ':p')
-			else
-				let aname = fnamemodify(l:name, ':p')
-				let sname = fnamemodify(aname, ':t')
-				if sname == ''
-					let test = fnamemodify(aname, ':h:t')
-					if test != ''
-						return '<'. test . '>'
-					endif
-				endif
-				return sname
-			endif
-		endif
-	else
-		let l:buftype = getbufvar(a:bufnr, '&buftype')
-		if l:buftype == 'quickfix'
-			return '[Quickfix]'
-		elseif l:name != ''
-			if a:fullname 
-				return '-'.fnamemodify(l:name, ':p')
-			else
-				return '-'.fnamemodify(l:name, ':t')
-			endif
-		else
-		endif
-		return '[No Name]'
-	endif
-endfunc
-
-
-"----------------------------------------------------------------------
-" 标签栏文字，使用 [1] filename 的模式
-"----------------------------------------------------------------------
-function! Vim_NeatTabLabel(n)
-	let l:buflist = tabpagebuflist(a:n)
-	let l:winnr = tabpagewinnr(a:n)
-	let l:bufnr = l:buflist[l:winnr - 1]
-	let l:fname = Vim_NeatBuffer(l:bufnr, 0)
-	let l:num = a:n
-	let style = get(g:, 'config_vim_tab_style', 0)
-	if style == 0
-		return l:fname
-	elseif style == 1
-		return "[".l:num."] ".l:fname
-	elseif style == 2
-		return "".l:num." - ".l:fname
-	endif
-	if getbufvar(l:bufnr, '&modified')
-		return "[".l:num."] ".l:fname." +"
-	endif
-	return "[".l:num."] ".l:fname
-endfunc
-
-
-"----------------------------------------------------------------------
-" GUI 下的标签文字，使用 [1] filename 的模式
-"----------------------------------------------------------------------
-function! Vim_NeatGuiTabLabel()
-	let l:num = v:lnum
-	let l:buflist = tabpagebuflist(l:num)
-	let l:winnr = tabpagewinnr(l:num)
-	let l:bufnr = l:buflist[l:winnr - 1]
-	let l:fname = Vim_NeatBuffer(l:bufnr, 0)
-	let style = get(g:, 'config_vim_tab_style', 0)
-	if style == 0
-		return l:fname
-	elseif style == 1
-		return "[".l:num."] ".l:fname
-	elseif style == 2
-		return "".l:num." - ".l:fname
-	endif
-	if getbufvar(l:bufnr, '&modified')
-		return "[".l:num."] ".l:fname." +"
-	endif
-	return "[".l:num."] ".l:fname
-endfunc
-
-
-
-"----------------------------------------------------------------------
-" 设置 GUI 标签的 tips: 显示当前标签有哪些窗口
-"----------------------------------------------------------------------
-function! Vim_NeatGuiTabTip()
-	let tip = ''
-	let bufnrlist = tabpagebuflist(v:lnum)
-	for bufnr in bufnrlist
-		" separate buffer entries
-		if tip != ''
-			let tip .= " \n"
-		endif
-		" Add name of buffer
-		let name = Vim_NeatBuffer(bufnr, 1)
-		let tip .= name
-		" add modified/modifiable flags
-		if getbufvar(bufnr, "&modified")
-			let tip .= ' [+]'
-		endif
-		if getbufvar(bufnr, "&modifiable")==0
-			let tip .= ' [-]'
-		endif
-	endfor
-	return tip
-endfunc
-
-
-"----------------------------------------------------------------------
-" 标签栏最终设置
-"----------------------------------------------------------------------
-set tabline=%!Vim_NeatTabLine()
-set guitablabel=%{Vim_NeatGuiTabLabel()}
-set guitabtooltip=%{Vim_NeatGuiTabTip()}
-
+" if has('gui_running')
+" 	let g:config_vim_tab_style = 3
+" endif
 
 

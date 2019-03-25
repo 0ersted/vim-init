@@ -1,11 +1,11 @@
-"======================================================================
-"
-" init.vim - initialize config
-"
-" Created by skywind on 2018/05/30
-" Last Modified: 2018/05/30 18:26:34
-"
-"======================================================================
+" ================================================================
+" 
+"  init.vim - initialize config
+" 
+"  Created by skywind on 2018/05/30
+"  Last Modified: 2018/05/30 18:26:34
+" 
+" ================================================================
 
 " 防止重复加载
 if get(s:, 'loaded', 0) != 0
@@ -25,11 +25,13 @@ exec 'set rtp+='.s:home
 
 " 将 ~/.vim 目录加入 runtimepath (有时候 vim 不会自动帮你加入）
 set rtp+=~/.vim
+set rtp+=~/.vim/plugged
 
 
 "----------------------------------------------------------------------
 " 模块加载
 "----------------------------------------------------------------------
+
 
 " 加载基础配置
 LoadScript init/init-basic.vim
@@ -40,14 +42,12 @@ LoadScript init/init-config.vim
 " 设定 tabsize
 LoadScript init/init-tabsize.vim
 
-" 插件加载
-LoadScript init/init-plugins.vim
-
 " 界面样式
 LoadScript init/init-style.vim
 
 " 自定义按键
 LoadScript init/init-keymaps.vim
 
-
+" 插件加载
+LoadScript init/init-plugins.vim
 

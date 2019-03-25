@@ -15,6 +15,11 @@
 "======================================================================
 " vim: set ts=4 sw=4 tw=78 noet :
 
+"----------------------------------------------------------------------
+" 选择一个 leader key
+"----------------------------------------------------------------------
+let mapleader = " "
+noremap <silent><leader><space> :let @/=''<cr> " clear search
 
 "----------------------------------------------------------------------
 " INSERT 模式下使用 EMACS 键位
@@ -125,8 +130,6 @@ endif
 "----------------------------------------------------------------------
 " 缓存：插件 unimpaired 中定义了 [b, ]b 来切换缓存
 "----------------------------------------------------------------------
-noremap <silent> <leader>bn :bn<cr>
-noremap <silent> <leader>bp :bp<cr>
 
 
 "----------------------------------------------------------------------
@@ -229,10 +232,14 @@ endif
 "----------------------------------------------------------------------
 
 " 自动打开 quickfix window ，高度为 6
-let g:asyncrun_open = 6
+let g:asyncrun_open = 8
 
 " 任务结束时候响铃提醒
 let g:asyncrun_bell = 1
+
+let g:asyncrun_rootmarks = ['.svn', '.git', '.root', '_darcs', 'build.xml']
+
+nnoremap <leader>r :AsyncRun<space>
 
 " 设置 F10 打开/关闭 Quickfix 窗口
 nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
@@ -255,10 +262,6 @@ nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make test <cr>
 " 更新 cmake
 nnoremap <silent> <F4> :AsyncRun -cwd=<root> cmake . <cr>
 
-" Windows 下支持直接打开新 cmd 窗口运行
-if has('win32') || has('win64')
-	nnoremap <silent> <F8> :AsyncRun -cwd=<root> -mode=4 make run <cr>
-endif
 
 
 "----------------------------------------------------------------------
