@@ -42,16 +42,13 @@ call plug#begin(get(g:, 'bundle_home', '~/.vim/plugged'))
 "----------------------------------------------------------------------
 
 " 全文快速移动，<leader><leader>f{char} 即可触发
-Plug 'easymotion/vim-easymotion'
+" Plug 'easymotion/vim-easymotion'
 
 " 表格对齐，使用命令 Tabularize
 Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
 
 " Diff 增强，支持 histogram / patience 等更科学的 diff 算法
 Plug 'chrisbra/vim-diff-enhanced'
-
-" Commenter 
-Plug 'scrooloose/nerdcommenter'
 
 
 "----------------------------------------------------------------------
@@ -179,7 +176,6 @@ if index(g:bundle_group, 'tags') >= 0
     set cscopetag
     set cscopeprg=gtags-cscope
     " shortcuts
-    noremap <leader>g :GtagsCursor<CR>
     noremap <C-n> :cn<CR>
     noremap <C-p> :cp<CR>
 
@@ -196,6 +192,17 @@ if index(g:bundle_group, 'tags') >= 0
     " 提供 GscopeFind 命令并自动处理好 gtags 数据库切换
     " 支持光标移动到符号名上：<leader>cg 查看定义，<leader>cs 查看引用
     Plug 'skywind3000/gutentags_plus'
+
+    let g:gutentags_plus_nomap = 1
+    noremap <silent> <leader>gs :GscopeFind s <C-R><C-W><cr>
+    noremap <silent> <leader>gg :GscopeFind g <C-R><C-W><cr>
+    noremap <silent> <leader>gc :GscopeFind c <C-R><C-W><cr>
+    noremap <silent> <leader>gt :GscopeFind t <C-R><C-W><cr>
+    noremap <silent> <leader>ge :GscopeFind e <C-R><C-W><cr>
+    noremap <silent> <leader>gf :GscopeFind f <C-R>=expand("<cfile>")<cr><cr>
+    noremap <silent> <leader>gi :GscopeFind i <C-R>=expand("<cfile>")<cr><cr>
+    noremap <silent> <leader>gd :GscopeFind d <C-R><C-W><cr>
+    noremap <silent> <leader>ga :GscopeFind a <C-R><C-W><cr>
 
     " 设定项目目录标志：除了 .git/.svn 外，还有 .root 文件
     let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
@@ -235,28 +242,28 @@ endif
 " 文本对象：textobj 全家桶
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'textobj')
-	
+
     " TO BE STUDIED
-	" 基础插件：提供让用户方便的自定义文本对象的接口
-	Plug 'kana/vim-textobj-user'
+    " 基础插件：提供让用户方便的自定义文本对象的接口
+    Plug 'kana/vim-textobj-user'
 
-	" indent 文本对象：ii/ai 表示当前缩进，vii 选中当缩进，cii 改写缩进
-	Plug 'kana/vim-textobj-indent'
+    " indent 文本对象：ii/ai 表示当前缩进，vii 选中当缩进，cii 改写缩进
+    Plug 'kana/vim-textobj-indent'
 
-	" 语法文本对象：iy/ay 基于语法的文本对象
-	Plug 'kana/vim-textobj-syntax'
+    " 语法文本对象：iy/ay 基于语法的文本对象
+    Plug 'kana/vim-textobj-syntax'
 
-	" 函数文本对象：if/af 支持 c/c++/vim/java
-	Plug 'kana/vim-textobj-function', { 'for':['c', 'cpp', 'vim', 'java'] }
+    " 函数文本对象：if/af 支持 c/c++/vim/java
+    Plug 'kana/vim-textobj-function', { 'for':['c', 'cpp', 'vim', 'java'] }
 
-	" 参数文本对象：i,/a, 包括参数或者列表元素
-	Plug 'sgur/vim-textobj-parameter'
+    " 参数文本对象：i,/a, 包括参数或者列表元素
+    Plug 'sgur/vim-textobj-parameter'
 
-	" 提供 python 相关文本对象，if/af 表示函数，ic/ac 表示类
-	Plug 'bps/vim-textobj-python', {'for': 'python'}
+    " 提供 python 相关文本对象，if/af 表示函数，ic/ac 表示类
+    Plug 'bps/vim-textobj-python', {'for': 'python'}
 
-	" 提供 uri/url 的文本对象，iu/au 表示
-	Plug 'jceb/vim-textobj-uri'
+    " 提供 uri/url 的文本对象，iu/au 表示
+    Plug 'jceb/vim-textobj-uri'
 endif
 
 
@@ -265,21 +272,21 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'filetypes') >= 0
 
-	" C++ 语法高亮增强，支持 11/14/17 标准
-	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
+    " C++ 语法高亮增强，支持 11/14/17 标准
+    Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 
-	" 额外语法文件
-	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
+    " 额外语法文件
+    Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
 
-	" python 语法文件增强
-	Plug 'vim-python/python-syntax', { 'for': ['python'] }
+    " python 语法文件增强
+    Plug 'vim-python/python-syntax', { 'for': ['python'] }
 
-	" rust 语法增强
-	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+    " rust 语法增强
+    Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
-	" vim org-mode 
-	"Plug 'jceb/vim-orgmode', { 'for': 'org' }
-    
+    " vim org-mode 
+    "Plug 'jceb/vim-orgmode', { 'for': 'org' }
+
     " Julia 
     Plug 'JuliaEditorSupport/julia-vim'
 
@@ -291,24 +298,24 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'airline') >= 0
 
-	Plug 'vim-airline/vim-airline'
-	Plug 'vim-airline/vim-airline-themes'
-    
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+
     " buffer tabs
     Plug 'ap/vim-buftabline'
 
-	let g:airline_left_sep = ''
-	let g:airline_left_alt_sep = ''
-	let g:airline_right_sep = ''
-	let g:airline_right_alt_sep = ''
-	let g:airline_powerline_fonts = 0
-	let g:airline_exclude_preview = 1
-	let g:airline_section_b = '%n'
-	let g:airline_theme='gruvbox'
+    let g:airline_left_sep = ''
+    let g:airline_left_alt_sep = ''
+    let g:airline_right_sep = ''
+    let g:airline_right_alt_sep = ''
+    let g:airline_powerline_fonts = 0
+    let g:airline_exclude_preview = 1
+    let g:airline_section_b = '%n'
+    let g:airline_theme='gruvbox'
 
-	let g:airline#extensions#ale#enabled = 1
-	let g:airline#extensions#branch#enabled = 0
-	let g:airline#extensions#fugitiveline#enabled = 1
+    let g:airline#extensions#ale#enabled = 1
+    let g:airline#extensions#branch#enabled = 0
+    let g:airline#extensions#fugitiveline#enabled = 1
 
     let g:airline#extensions#gutentags#enabled = 1
     let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
@@ -328,16 +335,16 @@ if index(g:bundle_group, 'filetree') >= 0
                 \ -direction=topleft -show_ignored_files=0 -toggle=1 
                 \ -buffer_name='' -columns=git:mark:filename:type 
                 \ -columns=icons:filename:type <cr>
-                " \ -ignored-files= ['.pyc','~$','.swp', '.DS_Store', '.out']
+    " \ -ignored-files= ['.pyc','~$','.swp', '.DS_Store', '.out']
 
     autocmd FileType defx call s:defx_my_settings()
     function! s:defx_my_settings() abort
         " Define mappings
-        nnoremap <silent><buffer><expr> <CR> defx#do_action('open')
+        nnoremap <silent><buffer><expr> <CR> defx#do_action('multi', ['drop', 'quit']) 
         nnoremap <silent><buffer><expr> c defx#do_action('copy')
         nnoremap <silent><buffer><expr> m defx#do_action('move')
         nnoremap <silent><buffer><expr> p defx#do_action('paste')
-        nnoremap <silent><buffer><expr> l defx#do_action('open')
+        nnoremap <silent><buffer><expr> l defx#do_action('drop')
         nnoremap <silent><buffer><expr> E defx#do_action('open', 'vsplit')
         nnoremap <silent><buffer><expr> P defx#do_action('open', 'pedit')
         nnoremap <silent><buffer><expr> o defx#do_action('open_or_close_tree')
