@@ -106,7 +106,10 @@ if index(g:bundle_group, 'basic') >= 0
 			\ 'git': 'git diff --no-color --diff-algorithm=histogram --no-ext-diff -U0 -- %f',
 			\}
 
+    " c/c++ switch .h* and .c* file
+    Plug 'ericcurtin/CurtineIncSw.vim'
 
+    noremap <silent> <leader>ww : call CurtineIncSw()<CR>
 endif
 
 
@@ -425,22 +428,19 @@ if index(g:bundle_group, 'ale') >= 0
 	Plug 'w0rp/ale'
 
 	" 设定延迟和提示信息
-	let g:ale_completion_delay = 500
-	let g:ale_echo_delay = 20
+	let g:ale_completion_delay = 10
+	let g:ale_echo_delay = 50
     let g:ale_echo_msg_error_str = 'E'
     let g:ale_echo_msg_warning_str = 'W'
     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-	"let g:ale_echo_msg_format = '[%linter%] %code: %%s'
-	let g:ale_lint_delay = 500
-    let g:ale_lint_on_text_changed = 'normal'
-    let g:ale_lint_on_insert_leave = 0
+	let g:ale_lint_delay = 10
     let g:ale_sign_error = '✗'
     let g:ale_sign_warning = '⚡'
     let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
 
 	" 设定检测的时机：normal 模式文字改变，或者离开 insert模式
 	" 禁用默认 INSERT 模式下改变文字也触发的设置，太频繁外，还会让补全窗闪烁
-	let g:ale_lint_on_text_changed = 'normal'
+    let g:ale_lint_on_text_changed = 'never'
 	let g:ale_lint_on_insert_leave = 1
 
 	" 在 linux/mac 下降低语法检查程序的进程优先级（不要卡到前台进程）
@@ -450,15 +450,20 @@ if index(g:bundle_group, 'ale') >= 0
 
     " config for C/C++
     let g:ale_c_build_dir_names = ['build', 'release', 'debug']
+    let g:ale_c_build_dir = "build"
+    let g:ale_c_parse_compile_commands = 1
+
     let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
     let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-    let g:ale_c_cppcheck_options = ''
-    let g:ale_cpp_cppcheck_options = ''
-    let g:ale_cpp_clangtidy_options = '-Wall -std=c++11 -x c++'
+    "let g:ale_c_cppcheck_options = ''
+    "let g:ale_cpp_cppcheck_options = ''
+    let g:ale_cpp_clangd_options = '-Wall -std=c++14 -x c++'
+    let g:ale_cpp_clangtidy_checks = ['*']
+    let g:ale_cpp_clangtidy_options = '-Wall -std=c++17 -x c++'
 
     " 编辑不同文件类型需要的语法检查器
     let g:ale_linters = {
-                \ 'cpp': ['clangd', 'clang++', 'cppcheck' , 'clangtidy',
+                \ 'cpp': ['clangd', 'clang++', 'clangtidy',
                 \ 'cquery'],
                 \ 'c': ['gcc', 'clang'],
                 \ 'rust': ['rustc', 'cargo', 'rls'],
@@ -469,9 +474,10 @@ if index(g:bundle_group, 'ale') >= 0
                 \ 'javascript': ['eslint'], 
                 \ }
 
-    "let g:ale_fixers = {
-                "\ 'cpp': ['clang-format'],
-                "\ }
+    let g:ale_fixers = {
+                \   '*': ['remove_trailing_lines', 'trim_whitespace'],
+                \ 'cpp': ['clang-format'],
+                \ }
 
     let g:ale_java_javac_options = '-encoding UTF-8  -J-Duser.language=en' 
 
@@ -503,6 +509,15 @@ if index(g:bundle_group, 'ale') >= 0
 		let g:ale_linters.cpp += ['clang']
 	endif
 
+    " clang-format for formatting
+    Plug 'rhysd/vim-clang-format'
+    
+    let g:clang_format#auto_format = 0 
+    let g:clang_format#auto_formatexpr = 1 
+    let g:clang_format#detect_style_file = 1 
+    let g:clang_format#enable_fallback_style = 0
+
+    autocmd FileType c ClangFormatAutoEnable
 
 endif
 
@@ -553,7 +568,98 @@ if index(g:bundle_group, 'leaderf') >= 0
 
 		" ui 定制
 		let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
-        let g:lf_stlcolorscheme = 'airline'
+        "let g:Lf_StlPalette = {
+              "\    "stlName": {
+              "\        "gui": "bold",
+              "\        "ctermbg": "214",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#fabd2f",
+              "\        "cterm": "bold",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlCwd": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "239",
+              "\        "ctermfg": "223",
+              "\        "guibg": "#504945",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#ebdbb2",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlFuzzyMode": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "167",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#fb4934",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlLineInfo": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "239",
+              "\        "ctermfg": "223",
+              "\        "guibg": "#504945",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#ebdbb2",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlCategory": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "108",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#8ec07c",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlRegexMode": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "142",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#b8bb26",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlBlank": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "239",
+              "\        "ctermfg": "243",
+              "\        "guibg": "#504945",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#a89984",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlFullPathMode": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "175",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#d3869b",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlTotal": {
+              "\        "gui": "bold",
+              "\        "ctermbg": "214",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#fabd2f",
+              "\        "cterm": "bold",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\    "stlNameOnlyMode": {
+              "\        "gui": "NONE",
+              "\        "ctermbg": "109",
+              "\        "ctermfg": "235",
+              "\        "guibg": "#83a598",
+              "\        "cterm": "NONE",
+              "\        "guifg": "#282828",
+              "\        "font": "NONE",
+              "\    },
+              "\}
 
 		" 如何识别项目目录，从当前文件目录向父目录递归知道碰到下面的文件/目录
 		let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
@@ -588,6 +694,8 @@ if index(g:bundle_group, 'leaderf') >= 0
 				\ "BufTag": [["<ESC>", ':exec g:Lf_py "bufTagExplManager.quit()"<cr>']],
 				\ "Function": [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<cr>']],
 				\ }
+        "  Gtags 配置
+        let g:Lf_Gtagsconf = '/usr/local/share/gtags/gtags.conf'
 endif
 
 
@@ -608,8 +716,10 @@ if index(g:bundle_group, 'complete') >= 0
     let g:deoplete#auto_completion_start_length = 3
     let g:deoplete#auto_complete_delay=10
     let g:deoplete#ignore_sources = {}
+    let g:deoplete#sources = {'_': ['tabnine', 'ale']}
     " let g:deoplete#ignore_sources._ = ['javacomplete2']
-    set completeopt=menu,preview,noinsert
+    set completeopt=menu,menuone,preview,noselect,noinsert
+
     autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
 endif

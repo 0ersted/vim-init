@@ -50,7 +50,12 @@ set background=light
 
 " 允许 256 色
 set t_Co=256
-set termguicolors
+" Enable true color 启用终端24位色
+if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
 
 " 设置颜色主题，会在所有 runtimepaths 的 colors 目录寻找同名配置
 "color desert256

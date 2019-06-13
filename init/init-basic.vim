@@ -25,6 +25,7 @@ set matchpairs+=<:> " use % to jump between pairs
 
 " 自动缩进
 set autoindent
+filetype plugin indent on
 
 " 打开 C/C++ 语言缩进优化
 set cindent
@@ -139,7 +140,6 @@ set formatoptions+=B
 " 文件换行符，默认使用 unix 换行符
 set ffs=unix,mac
 
-
 "----------------------------------------------------------------------
 " 设置代码折叠
 "----------------------------------------------------------------------
@@ -176,6 +176,4 @@ set wildignore+=*.ppt,*.pptx,*.docx,*.xlt,*.xls,*.xlsx,*.odt,*.wps
 set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
-
-
 
