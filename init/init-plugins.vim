@@ -15,8 +15,10 @@
 "----------------------------------------------------------------------
 if !exists('g:bundle_group')
 	let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes', 'textobj']
-	let g:bundle_group += ['tags', 'airline', 'filetree', 'ale', 'echodoc']
-	let g:bundle_group += ['leaderf', 'complete']
+	let g:bundle_group += ['tags', 'airline', 'filetree', 'ale', 'echodoc', 'leaderf']
+	let g:bundle_group += ['deoplete']
+	let g:bundle_group += ['coc']
+
 endif
 
 
@@ -159,6 +161,19 @@ if index(g:bundle_group, 'enhanced') >= 0
     
     let g:indentLine_color_term = 239
     let g:indentLine_char = '⎸'
+
+    " 按键提示
+    Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!'] }
+
+    let g:mapleader = "\<Space>"
+    let g:maplocalleader = ','
+    nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+    let g:which_key_vertical = 1
+    let g:which_key_max_size = 25
+    let g:which_key_sort_horizontal = 1
+    let g:which_key_use_floating_win = 0
+    let g:which_key_timeout = 100
+
     
 endif
 
@@ -324,6 +339,8 @@ if index(g:bundle_group, 'airline') >= 0
     let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
     let g:airline#extensions#bufferline#enabled = 1
 
+    let g:airline#extensions#coc#enabled = 1
+
 endif
 
 
@@ -480,28 +497,6 @@ if index(g:bundle_group, 'ale') >= 0
                 \ }
 
     let g:ale_java_javac_options = '-encoding UTF-8  -J-Duser.language=en' 
-
-	" 获取 pylint, flake8 的配置文件，在 vim-init/tools/conf 下面
-	function s:lintcfg(name)
-		let conf = s:path('tools/conf/')
-		let path1 = conf . a:name
-		let path2 = expand('~/.vim/linter/'. a:name)
-		if filereadable(path2)
-			return path2
-		endif
-		return shellescape(filereadable(path2)? path2 : path1)
-	endfunc
-
-	" 设置 flake8/pylint 的参数
-	let g:ale_python_flake8_options = '--conf='.s:lintcfg('flake8.conf')
-	let g:ale_python_pylint_options = '--rcfile='.s:lintcfg('pylint.conf')
-	let g:ale_python_pylint_options .= ' --disable=W'
-	let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
-	let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-	let g:ale_c_cppcheck_options = ''
-	let g:ale_cpp_cppcheck_options = ''
-
-	let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
 
 	" 如果没有 gcc 只有 clang 时（FreeBSD）
 	if executable('gcc') == 0 && executable('clang')
@@ -700,7 +695,7 @@ endif
 
 
 "----------------------------------------------------------------------
-" 补全
+" deoplete补全
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'complete') >= 0
 
@@ -723,12 +718,21 @@ if index(g:bundle_group, 'complete') >= 0
     autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
 endif
+
+"----------------------------------------------------------------------
+" coc补全
+"----------------------------------------------------------------------
+if index(g:bundle_group, 'coc') >= 0
+
+    Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+    set updatetime=300
+
+
+endif
 "----------------------------------------------------------------------
 " 结束插件安装
 "----------------------------------------------------------------------
 call plug#end()
-
-
 
 "----------------------------------------------------------------------
 " YouCompleteMe 默认设置：YCM 需要你另外手动编译安装

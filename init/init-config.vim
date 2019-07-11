@@ -171,4 +171,13 @@ augroup InitFileTypesGroup
 
 augroup END
 
+"----------------------------------------------------------------------
+" 保存terminal buffer
+"----------------------------------------------------------------------
+if has('nvim') 
+    augroup custom_term
+        autocmd!
+        autocmd TermOpen * setlocal bufhidden=hide
+    augroup END
+endif
 
