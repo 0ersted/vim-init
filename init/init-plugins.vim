@@ -68,6 +68,7 @@ if index(g:bundle_group, 'basic') >= 0
     let g:gruvbox_number_column = 'bg0'
     let g:gruvbox_vert_split = 'gray'
     let g:gruvbox_invert_selection = 0
+    let g:gruvbox_italic = 1
     colorscheme gruvbox
 
 	" 支持库，给其他插件用的函数库
@@ -189,8 +190,8 @@ if index(g:bundle_group, 'tags') >= 0
     Plug 'vim-scripts/gtags.vim'
 
     " Gtags setting:
-    let $GTAGSLABEL = 'native'
-    let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
+    let $GTAGSLABEL = 'native-pygments'
+    let $GTAGSCONF = '/etc/gtags.conf'
     set cscopetag
     set cscopeprg=gtags-cscope
     " shortcuts
@@ -243,7 +244,7 @@ if index(g:bundle_group, 'tags') >= 0
     endif
 
     " 设置 ctags 的参数
-    let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+    let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extras=+q']
     let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
     let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
 
@@ -349,7 +350,13 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'filetree') >= 0
 
-    Plug 'Shougo/defx.nvim'
+    if has('nvim')
+        Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+    else
+        Plug 'Shougo/defx.nvim'
+        Plug 'roxma/nvim-yarp'
+        Plug 'roxma/vim-hug-neovim-rpc'
+    endif
 
     nnoremap <silent><leader><C-f> :Defx -split=vertical -winwidth=30 
                 \ -direction=topleft -show_ignored_files=0 -toggle=1 
@@ -536,10 +543,10 @@ if index(g:bundle_group, 'leaderf') >= 0
 		Plug 'Yggdroot/LeaderF'
 
 		" 打开文件模糊匹配
-        let g:lf_shortcutf = '<leader>f<leader>'
+        noremap <leader>f<leader> :LeaderfFile<cr>
 
 		" 打开最近使用的文件 MRU，进行模糊匹配
-        noremap <leader>fm  :LeaderfMru<cr>
+        noremap <leader>fm :LeaderfMru<cr>
 
 		" 打开函数列表，按 i 进入模糊匹配，ESC 退出
 		noremap <leader>fp :LeaderfFunction!<cr>
@@ -690,7 +697,8 @@ if index(g:bundle_group, 'leaderf') >= 0
 				\ "Function": [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<cr>']],
 				\ }
         "  Gtags 配置
-        let g:Lf_Gtagsconf = '/usr/local/share/gtags/gtags.conf'
+        let g:Lf_Gtagsconf = '/etc/gtags.conf'
+    endif
 endif
 
 
@@ -699,9 +707,14 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'complete') >= 0
 
-    Plug 'Shougo/deoplete.nvim'
-    Plug 'roxma/nvim-yarp'
-    Plug 'roxma/vim-hug-neovim-rpc'
+
+	if has('nvim')
+		Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+	else
+		Plug 'Shougo/defx.nvim'
+		Plug 'roxma/nvim-yarp'
+		Plug 'roxma/vim-hug-neovim-rpc'
+	endif
 
     " A very good source of deoplete
     Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
@@ -724,97 +737,10 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'coc') >= 0
 
-    Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
     set updatetime=300
-
-
 endif
 "----------------------------------------------------------------------
 " 结束插件安装
 "----------------------------------------------------------------------
 call plug#end()
-
-"----------------------------------------------------------------------
-" YouCompleteMe 默认设置：YCM 需要你另外手动编译安装
-"----------------------------------------------------------------------
-
-" 禁用预览功能：扰乱视听
-" let g:ycm_add_preview_to_completeopt = 0
-" 
-" " 禁用诊断功能：我们用前面更好用的 ALE 代替
-" let g:ycm_show_diagnostics_ui = 0
-" let g:ycm_server_log_level = 'info'
-" let g:ycm_min_num_identifier_candidate_chars = 2
-" let g:ycm_collect_identifiers_from_comments_and_strings = 1
-" let g:ycm_complete_in_strings=1
-" let g:ycm_key_invoke_completion = '<c-z>'
-" set completeopt=menu,menuone,noselect
-" 
-" " noremap <c-z> <NOP>
-" 
-" " 两个字符自动触发语义补全
-" let g:ycm_semantic_triggers =  {
-" 			\ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-" 			\ 'cs,lua,javascript': ['re!\w{2}'],
-" 			\ }
-" 
-" 
-" "----------------------------------------------------------------------
-" " Ycm 白名单（非名单内文件不启用 YCM），避免打开个 1MB 的 txt 分析半天
-" "----------------------------------------------------------------------
- let g:ycm_filetype_whitelist = { 
- 			\ "c":1,
- 			\ "cpp":1, 
- 			\ "objc":1,
- 			\ "objcpp":1,
- 			\ "python":1,
- 			\ "java":1,
- 			\ "javascript":1,
- 			\ "coffee":1,
- 			\ "vim":1, 
- 			\ "go":1,
- 			\ "cs":1,
- 			\ "lua":1,
- 			\ "perl":1,
- 			\ "perl6":1,
- 			\ "php":1,
- 			\ "ruby":1,
- 			\ "rust":1,
- 			\ "erlang":1,
- 			\ "asm":1,
- 			\ "nasm":1,
- 			\ "masm":1,
- 			\ "tasm":1,
- 			\ "asm68k":1,
- 			\ "asmh8300":1,
- 			\ "asciidoc":1,
- 			\ "basic":1,
- 			\ "vb":1,
- 			\ "make":1,
- 			\ "cmake":1,
- 			\ "html":1,
- 			\ "css":1,
- 			\ "less":1,
- 			\ "json":1,
- 			\ "cson":1,
- 			\ "typedscript":1,
- 			\ "haskell":1,
- 			\ "lhaskell":1,
- 			\ "lisp":1,
- 			\ "scheme":1,
- 			\ "sdl":1,
- 			\ "sh":1,
- 			\ "zsh":1,
- 			\ "bash":1,
- 			\ "man":1,
- 			\ "markdown":1,
- 			\ "matlab":1,
- 			\ "maxima":1,
- 			\ "dosini":1,
- 			\ "conf":1,
- 			\ "config":1,
- 			\ "zimbu":1,
- 			\ "ps1":1,
- 			\ }
-
-endif 

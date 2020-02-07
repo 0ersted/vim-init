@@ -46,7 +46,7 @@ set splitright
 "----------------------------------------------------------------------
 
 " 设置亮色背景
-set background=light
+set background=dark
 
 " 允许 256 色
 set t_Co=256
