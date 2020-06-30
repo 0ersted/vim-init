@@ -40,6 +40,8 @@ set showmode
 " 水平切割窗口时，默认在右边显示新窗口
 set splitright
 
+" cursor 自动变化
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,
 
 "----------------------------------------------------------------------
 " 颜色主题：色彩文件位于 colors 目录中
@@ -50,6 +52,7 @@ set background=dark
 
 " 允许 256 色
 set t_Co=256
+
 " Enable true color 启用终端24位色
 if exists('+termguicolors')
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"

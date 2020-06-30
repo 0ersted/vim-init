@@ -65,10 +65,12 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'flazz/vim-colorschemes'
 
     Plug 'morhetz/gruvbox'
+    let g:gruvbox_italic = 1
     let g:gruvbox_number_column = 'bg0'
     let g:gruvbox_vert_split = 'gray'
     let g:gruvbox_invert_selection = 0
     let g:gruvbox_italic = 1
+    let g:gruvbox_contrast_dark = 'soft'
     colorscheme gruvbox
 
 	" 支持库，给其他插件用的函数库
@@ -145,8 +147,9 @@ if index(g:bundle_group, 'enhanced') >= 0
     vmap     <Leader>F <Plug>CtrlSFVwordExec
 
 	" 配对括号和引号自动补全
-	Plug 'Raimondi/delimitMate'
-
+    Plug 'Raimondi/delimitMate'
+    au FileType c,cpp,h,hpp,cc let b:delimitMate_matchpairs = "(:),[:],{:}"
+    
 	" 提供 gist 接口
 	Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	
@@ -303,11 +306,21 @@ if index(g:bundle_group, 'filetypes') >= 0
     " rust 语法增强
     Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
-    " vim org-mode 
-    "Plug 'jceb/vim-orgmode', { 'for': 'org' }
-
     " Julia 
     Plug 'JuliaEditorSupport/julia-vim'
+
+
+    " vimtex
+    Plug 'lervag/vimtex'
+    " A Vim Plugin for Lively Previewing LaTeX PDF Output
+    Plug 'xuhdev/vim-latex-live-preview'
+
+    " vim-latex-preview-config
+    let g:livepreview_previewer = 'open -a Preview'
+    autocmd Filetype tex setl updatetime=1
+
+    " vimtex: disable warning message
+    let g:vimtex_compiler_latexmk = {'callback' : 0}
 
 endif
 
@@ -321,7 +334,6 @@ if index(g:bundle_group, 'airline') >= 0
     Plug 'vim-airline/vim-airline-themes'
 
     " buffer tabs
-    Plug 'ap/vim-buftabline'
 
     let g:airline_left_sep = ''
     let g:airline_left_alt_sep = ''
@@ -338,7 +350,24 @@ if index(g:bundle_group, 'airline') >= 0
 
     let g:airline#extensions#gutentags#enabled = 1
     let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
-    let g:airline#extensions#bufferline#enabled = 1
+
+     let g:airline#extensions#bufferline#enabled = 1
+
+    let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#tabline#fnamemod = ':t'
+
+    let g:airline#extensions#tabline#formatter = 'short_path'
+    let g:airline#extensions#tabline#show_close_button = 0
+    let g:airline#extensions#tabline#exclude_preview = 0
+
+    let g:airline#extensions#tabline#show_tabs = 0 " unchange
+    let g:airline#extensions#tabline#show_tab_nr = 0
+    let g:airline#extensions#tabline#show_tab_count = 1
+
+    let g:airline#extensions#tabline#buffer_nr_show = 1
+    let g:airline#extensions#tabline#buf_label_first = 0
+    let g:airline#extensions#tabline#buffers_label = ''
+    let g:airline#extensions#tabline#tabs_label = ''
 
     let g:airline#extensions#coc#enabled = 1
 
@@ -543,7 +572,8 @@ if index(g:bundle_group, 'leaderf') >= 0
 		Plug 'Yggdroot/LeaderF'
 
 		" 打开文件模糊匹配
-        noremap <leader>f<leader> :LeaderfFile<cr>
+        let g:Lf_ShortcutF = '<leader>f<leader>'
+        noremap <leader>f<leader>  :LeaderfFile<cr>
 
 		" 打开最近使用的文件 MRU，进行模糊匹配
         noremap <leader>fm :LeaderfMru<cr>
