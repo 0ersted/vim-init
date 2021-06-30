@@ -35,6 +35,7 @@ set cindent
 
 " 开启自动换行 
 set wrap
+set textwidth=100
 
 " 打开功能键超时检测（终端下功能键为一串 ESC 开头的字符串）
 set ttimeout
@@ -45,6 +46,7 @@ set ttimeoutlen=50
 " 显示光标位置
 set ruler
 
+set spell
 
 "----------------------------------------------------------------------
 " 搜索设置
@@ -176,4 +178,3 @@ set wildignore+=*.ppt,*.pptx,*.docx,*.xlt,*.xls,*.xlsx,*.odt,*.wps
 set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
-

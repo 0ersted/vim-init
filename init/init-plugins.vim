@@ -16,7 +16,6 @@
 if !exists('g:bundle_group')
 	let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes', 'textobj']
 	let g:bundle_group += ['tags', 'airline', 'filetree', 'ale', 'echodoc', 'leaderf']
-	let g:bundle_group += ['deoplete']
 	let g:bundle_group += ['coc']
 
 endif
@@ -135,6 +134,12 @@ if index(g:bundle_group, 'enhanced') >= 0
 	" 使用 :FlyGrep 命令进行实时 grep
 	"Plug 'wsdjeg/FlyGrep.vim'
 
+    " spell check
+    " Plug 'kamykn/spelunker.vim'
+    " let g:spelunker_disable_acronym_checking = 1
+    " let g:spelunker_disable_email_checking = 1
+    " let g:spelunker_disable_uri_checking = 1
+
 	" 使用 :CtrlSF 命令进行模仿 sublime 的 grep
 	Plug 'dyng/ctrlsf.vim'
 
@@ -165,6 +170,8 @@ if index(g:bundle_group, 'enhanced') >= 0
     
     let g:indentLine_color_term = 239
     let g:indentLine_char = '⎸'
+    autocmd BufRead,BufNewFile *.tex
+                \ let g:indentLine_concealcursor='c'
 
     " 按键提示
     Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!'] }
@@ -312,15 +319,40 @@ if index(g:bundle_group, 'filetypes') >= 0
 
     " vimtex
     Plug 'lervag/vimtex'
+
+    let g:tex_flavor = 'latex'
+    let g:tex_conceal= 'abg'
+    let g:vimtex_fold_enabled=0
+    let g:vimtex_fold_types = {}
+    let g:vimtex_syntax_conceal = {
+                \ "accents" : 1,
+                \ "fancy" : 1,
+                \ "greek" : 1,
+                \ "math_bounds" : 1,
+                \ "math_delimiters" : 0,
+                \ "math_fracs" : 0,
+                \ "math_super_sub" : 0,
+                \ "math_symbols": 0,
+                \ "styles" : 1,
+                \ }
+
+    "let g:vimtex_view_method = 'Preview'
+    let g:vimtex_view_method = 'skim'
+    let g:vimtex_view_automatic = 0
+    let g:vimtex_compiler_progname = 'nvr'
+
+    let g:vimtex_quickfix_open_on_warning = 0
+
+    "" vimtex: disable warning message
+    let g:vimtex_compiler_latexmk = {'callback' : 0}
+    
     " A Vim Plugin for Lively Previewing LaTeX PDF Output
     Plug 'xuhdev/vim-latex-live-preview'
-
     " vim-latex-preview-config
     let g:livepreview_previewer = 'open -a Preview'
-    autocmd Filetype tex setl updatetime=1
+    let g:livepreview_use_biber = 1
+    autocmd Filetype tex setl updatetime=0
 
-    " vimtex: disable warning message
-    let g:vimtex_compiler_latexmk = {'callback' : 0}
 
 endif
 
