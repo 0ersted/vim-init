@@ -14,7 +14,8 @@
 " 默认情况下的分组，可以再前面覆盖之
 "----------------------------------------------------------------------
 if !exists('g:bundle_group')
-	let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes', 'textobj']
+	"let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes', 'textobj']
+	let g:bundle_group = ['basic', 'tags', 'enhanced', 'filetypes']
 	let g:bundle_group += ['tags', 'airline', 'filetree', 'ale', 'echodoc', 'leaderf']
 	let g:bundle_group += ['coc']
 
@@ -79,7 +80,7 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'kshenoy/vim-signature'
 
 	" 用于在侧边符号栏显示 git/svn 的 diff
-	Plug 'mhinz/vim-signify'
+    Plug 'mhinz/vim-signify'
 
 	" 使用 ALT+e 会在不同窗口/标签上显示 A/B/C 等编号，然后字母直接跳转
 	Plug 't9md/vim-choosewin'
@@ -98,7 +99,7 @@ if index(g:bundle_group, 'basic') >= 0
 	let g:startify_session_dir = '~/.vim/session'
 
 	" signify 调优
-	let g:signify_vcs_list = ['git']
+	"let g:signify_vcs_list = ['git']
 " "	let g:signify_sign_add               = '+'
 " "	let g:signify_sign_delete            = '_'
 " "	let g:signify_sign_delete_first_line = '‾'
@@ -111,7 +112,7 @@ if index(g:bundle_group, 'basic') >= 0
 			\}
 
     " c/c++ switch .h* and .c* file
-    Plug 'ericcurtin/CurtineIncSw.vim'
+    Plug 'ericcurtin/CurtineIncSw.vim', {'for': ['c', 'cpp']}
 
     noremap <silent> <leader>ww : call CurtineIncSw()<CR>
 endif
@@ -209,11 +210,12 @@ if index(g:bundle_group, 'tags') >= 0
     noremap <C-p> :cp<CR>
 
 
-    Plug 'majutsushi/tagbar'
-    nnoremap <leader><C-T> :Tagbar<CR>
-    let g:tagbar_sort = 0
-    let g:tagbar_indent = 1
-    let g:tagbar_iconchars = ['▸', '▾']
+    Plug 'liuchengxu/vista.vim'
+    let g:vista_default_executive = 'ctags'
+    let g:vista_echo_cursor_strategy = 'floating_win'
+    let g:vista_update_on_text_changed = 1
+    nnoremap <silent> <leader><C-T> :Vista!!<CR>
+    "nnoremap <silent> <leader><C-T> :Vista coc<CR>
 
     " 提供 ctags/gtags 后台数据库自动更新功能
     Plug 'ludovicchabant/vim-gutentags'
@@ -314,11 +316,10 @@ if index(g:bundle_group, 'filetypes') >= 0
     Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 
     " Julia 
-    Plug 'JuliaEditorSupport/julia-vim'
-
+    "Plug 'JuliaEditorSupport/julia-vim', {'for': ['julia'] }
 
     " vimtex
-    Plug 'lervag/vimtex'
+    "Plug 'lervag/vimtex', {'for': 'tex' }
 
     let g:tex_flavor = 'latex'
     let g:tex_conceal= 'abg'
@@ -347,7 +348,7 @@ if index(g:bundle_group, 'filetypes') >= 0
     let g:vimtex_compiler_latexmk = {'callback' : 0}
     
     " A Vim Plugin for Lively Previewing LaTeX PDF Output
-    Plug 'xuhdev/vim-latex-live-preview'
+    Plug 'xuhdev/vim-latex-live-preview', {'for': 'latex'}
     " vim-latex-preview-config
     let g:livepreview_previewer = 'open -a Preview'
     let g:livepreview_use_biber = 1
@@ -419,8 +420,14 @@ if index(g:bundle_group, 'filetree') >= 0
         Plug 'roxma/vim-hug-neovim-rpc'
     endif
 
+    " rpc provider lazy loading for faster startup time
+    let g:loaded_python_provider = 0
+    let g:python3_host_prog = '/usr/local/opt/python@3.8/bin/python3'
+
+
     nnoremap <silent><leader><C-f> :Defx -split=vertical -winwidth=30 
-                \ -direction=topleft -show_ignored_files=0 -toggle=1 
+                \ -direction=topleft -toggle
+                \ -sort=filename:size:extension
                 \ -buffer_name='' -columns=git:mark:filename:type 
                 \ -columns=icons:filename:type <cr>
     " \ -ignored-files= ['.pyc','~$','.swp', '.DS_Store', '.out']
@@ -763,36 +770,6 @@ if index(g:bundle_group, 'leaderf') >= 0
     endif
 endif
 
-
-"----------------------------------------------------------------------
-" deoplete补全
-"----------------------------------------------------------------------
-if index(g:bundle_group, 'complete') >= 0
-
-
-	if has('nvim')
-		Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
-	else
-		Plug 'Shougo/defx.nvim'
-		Plug 'roxma/nvim-yarp'
-		Plug 'roxma/vim-hug-neovim-rpc'
-	endif
-
-    " A very good source of deoplete
-    Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
-
-    let g:deoplete#enable_at_startup = 1
-    let g:deoplete#enable_smart_case = 1
-    let g:deoplete#auto_completion_start_length = 3
-    let g:deoplete#auto_complete_delay=10
-    let g:deoplete#ignore_sources = {}
-    let g:deoplete#sources = {'_': ['tabnine', 'ale']}
-    " let g:deoplete#ignore_sources._ = ['javacomplete2']
-    set completeopt=menu,menuone,preview,noselect,noinsert
-
-    autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-
-endif
 
 "----------------------------------------------------------------------
 " coc补全
